@@ -11,19 +11,19 @@ import torch.nn.functional as F
 from torch import optim
 
 from unet import UNet
-from loader import get_dataloaders
+from loader_cluster import get_dataloaders
 
 
 def time_me(*arg):
     if len(arg) != 0: 
-        elapsedTime = time.time() - arg[0];
+        elapsedTime = time.time() - arg[0]
         hours = math.floor(elapsedTime / (60*60))
-        elapsedTime = elapsedTime - hours * (60*60);
+        elapsedTime = elapsedTime - hours * (60*60)
         minutes = math.floor(elapsedTime / 60)
-        elapsedTime = elapsedTime - minutes * (60);
-        seconds = math.floor(elapsedTime);
-        elapsedTime = elapsedTime - seconds;
-        ms = elapsedTime * 1000;
+        elapsedTime = elapsedTime - minutes * (60)
+        seconds = math.floor(elapsedTime)
+        elapsedTime = elapsedTime - seconds
+        ms = elapsedTime * 1000
         if(hours != 0):
             return "%d hours %d minutes %d seconds" % (hours, minutes, seconds)
         elif(minutes != 0):
@@ -133,13 +133,13 @@ def setup_and_run_train(load = False, test_perc = 0.2, batch_size = 10,
         print('Model loaded from {}'.format(load))
 
     # Location of the images to use
-    dir_img = 'data/original/'
-    dir_gt = 'data/gt/'
+    dir_train = '~/unet/raw/hoechst/original/train_1/output/'
+    dir_test = '~/unet/raw/hoechst/original/test_1/output/'
     dir_checkpoint = 'checkpoints/'
 
     # Load the dataset
     train_loader, test_loader = get_dataloaders(
-        dir_img, dir_gt, test_perc, batch_size)
+        dir_train, dir_test, batch_size)
 
     # Pretty print of the run
     print('''
