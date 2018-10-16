@@ -8,19 +8,15 @@ import random
 
 
 class BBBCDataset(Dataset):
-    def __init__(self, ids, dir_data, dir_gt, extension='.png', gt_label='_mask', is_pred=False):
+    def __init__(self, ids, dir_data, dir_gt, extension='.png', gt_label='_mask'):
 
         self.dir_data = dir_data
         self.dir_gt = dir_gt
         self.extension = extension
         self.gt_label = gt_label
 
-        self.is_pred = is_pred
-
         # Transforms
-        self.transformations = transforms.Compose([
-            transforms.Grayscale(),
-            transforms.ToTensor()])
+        self.transformations = transforms.ToTensor()
 
         # Images IDS
         self.ids = ids
@@ -31,7 +27,7 @@ class BBBCDataset(Dataset):
     def __getitem__(self, index):
         # Get an ID of a specific image
         id_img = self.dir_data + self.ids[index] + self.extension
-        id_gt = self.dir_gt + self.ids[index] + self.gt_label + self.extension
+        id_gt = self.dir_gt + self.ids[index] + self.extension
         # Open Image and GroundTruth
         img = Image.open(id_img)
         gt = Image.open(id_gt)
@@ -71,20 +67,18 @@ def get_dataloaders(dir_img, dir_gt, test_percent=0.2, batch_size=10):
     return train_loader, test_loader
 
 
-def get_predloader(dir_img):
-    ''' Returns the loader for predict images. '''
-    # Redirect folders path
-    dir_original = dir_img+"/original/"
-    dir_gt = dir_img+"/gt/"
-
+def get_predloader(dir_img, dir_gt, batch_size=1):
     # Read the names of the images
-    ids = [f[:-4] for f in os.listdir(dir_original)]
+    ids = [f[:-4] for f in os.listdir(dir_img)]
+    # Rearrange the images
+    random.shuffle(ids)
+    # Calculate index of partition
+    ids_pred = ids[:10]
 
-    # Create the dataset
-    pred_dataset = BBBCDataset(
-        ids=ids, dir_data=dir_original, dir_gt=dir_gt, is_pred=True)
+    # Create the datasets
+    pred_dataset = BBBCDataset(ids=ids_pred, dir_data=dir_img, dir_gt=dir_gt)
 
-    # Create the loader
-    pred_loader = DataLoader(pred_dataset)
+    # Create the loaders
+    pred_loader = DataLoader(pred_dataset, batch_size=batch_size, shuffle=True)
 
     return pred_loader
