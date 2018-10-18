@@ -60,18 +60,16 @@ class down(nn.Module):
 class up(nn.Module):
     ''' Applies a Deconvolution and then applies applies a double convolution pack. '''
 
-    def __init__(self, in_ch, out_ch, bilinear=True):
+    def __init__(self, in_ch, out_ch, bilinear=False):
         super(up, self).__init__()
-
-        #  would be a nice idea if the upsampling could be learned too,
-        #  but my machine do not have enough memory to handle all those weights
+        
+        # Bilinear is used to save computational cost
         if bilinear:
             self.up = nn.Upsample(
                 scale_factor=2, mode='bilinear', align_corners=True)
         else:
             self.up = nn.ConvTranspose2d(
                 in_ch//2, in_ch//2, kernel_size=2, stride=2)
-            # TODO: check if this should be in half
 
         self.conv = double_conv(in_ch, out_ch)
 

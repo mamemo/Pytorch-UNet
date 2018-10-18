@@ -5,29 +5,28 @@ from PIL import Image
 import numpy as np
 import os
 import random
+import re
 
 
 class BBBCDataset(Dataset):
-    def __init__(self, ids, dir_data, dir_gt, extension='.png', gt_label='_mask'):
+    def __init__(self, ids_data, ids_gt, direc):
 
-        self.dir_data = dir_data
-        self.dir_gt = dir_gt
-        self.extension = extension
-        self.gt_label = gt_label
+        self.direc = direc
 
         # Transforms
         self.transformations = transforms.ToTensor()
 
         # Images IDS
-        self.ids = ids
+        self.ids_data = ids_data
+        self.ids_gt = ids_gt
 
         # Calculate len of data
-        self.data_len = len(self.ids)
+        self.data_len = len(self.ids_data)
 
     def __getitem__(self, index):
         # Get an ID of a specific image
-        id_img = self.dir_data + self.ids[index] + self.extension
-        id_gt = self.dir_gt + self.ids[index] + self.extension
+        id_img = self.direc + self.ids_data[index]
+        id_gt = self.direc + self.ids_gt[index]
         # Open Image and GroundTruth
         img = Image.open(id_img)
         gt = Image.open(id_gt)
@@ -41,27 +40,29 @@ class BBBCDataset(Dataset):
         return self.data_len
 
 
-def get_dataloaders(dir_img, dir_gt, test_percent=0.2, batch_size=10):
-    # Validate a correct percentage
-    test_percent = test_percent/100 if test_percent > 1 else test_percent
-    # Read the names of the images
-    ids = [f[:-4] for f in os.listdir(dir_img)]
-    # Rearrange the images
-    random.shuffle(ids)
-    # Calculate index of partition
-    part = int(len(ids) * test_percent)
+def create_dataset(direc):
+    images = os.listdir(direc)
+    ids_data = []
+    ids_gt = []
+    for image_name in images:
+        if 'groundtruth' in image_name:
+            continue
+        img_id = re.sub("_original","", image_name,count=1)
+        image_mask_name = '_groundtruth_(1)_' + img_id
+        ids_data.append(image_name)
+        ids_gt.append(image_mask_name)
+    
+    dataset = BBBCDataset(ids_data=ids_data, ids_gt=ids_gt, direc=direc)
+    return dataset
 
-    # Split dataset between train and test
-    train_ids = ids[part:]
-    test_ids = ids[:part]
-
+def get_dataloaders(dir_train, dir_test, batch_size=10):
+    
     # Create the datasets
-    train_dataset = BBBCDataset(ids=train_ids, dir_data=dir_img, dir_gt=dir_gt)
-    test_dataset = BBBCDataset(ids=test_ids, dir_data=dir_img, dir_gt=dir_gt)
+    train_dataset = create_dataset(dir_train)
+    test_dataset = create_dataset(dir_test)
 
     # Create the loaders
-    train_loader = DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
     return train_loader, test_loader

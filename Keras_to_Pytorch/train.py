@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from torch import optim
 
 from unet import UNet
-from loader_cluster import get_dataloaders
+from loader_cluster import load_train_data, load_test_data, preprocess
 
 
 def time_me(*arg):
@@ -44,7 +44,7 @@ def dice_coef(y_pred, y_true):
 def dice_coef_loss(y_pred, y_true):
     return -dice_coef(y_pred, y_true)
 
-def train_net(net, device, loader, dir_checkpoint,optimizer, epochs=5, run=""):
+def train_net(net, device, data_train, gt_train, amount, dir_checkpoint,optimizer, epochs=5, run=""):
     ''' Train the CNN. '''
     for epoch in range(epochs):
         print('\nStarting epoch {}/{}.'.format(epoch + 1, epochs))
@@ -53,10 +53,10 @@ def train_net(net, device, loader, dir_checkpoint,optimizer, epochs=5, run=""):
         train_loss = 0
         cont = 0
         time_var = time_me()
-        for batch_idx, (data, gt) in enumerate(loader):
+        for idx in range(amount):
 
             # Use GPU or not
-            data, gt = data.to(device, dtype=torch.float), gt.to(device, dtype=torch.float)
+            data, gt = data_train[idx].to(device, dtype=torch.float), gt_train[idx].to(device, dtype=torch.float)
 
             optimizer.zero_grad()
 
@@ -65,8 +65,8 @@ def train_net(net, device, loader, dir_checkpoint,optimizer, epochs=5, run=""):
 
             # To calculate Loss
             pred_probs = torch.sigmoid(predictions)
-            pred_probs_flat = pred_probs.view(-1)
-            gt_flat = gt.view(-1)
+            # pred_probs_flat = pred_probs.view(-1)
+            # gt_flat = gt.view(-1)
 
             # Loss Calculation
             loss = dice_coef_loss(pred_probs, gt)
@@ -77,9 +77,9 @@ def train_net(net, device, loader, dir_checkpoint,optimizer, epochs=5, run=""):
             loss.backward()
             optimizer.step()
 
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch+1, batch_idx * len(data), len(loader.dataset),
-                100. * batch_idx / len(loader), loss.item()))
+            if idx%10 == 0:
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch+1, idx, amount, 100. * idx / amount, loss.item()))
 
         train_loss /= cont
         print('\nAverage Training Loss: ' + str(train_loss))
@@ -134,6 +134,7 @@ def setup_and_run_train(load = False, batch_size = 10,
 
     # Location of the images to use
     dir_checkpoint = 'checkpoints/'
+    pred_dir = 'pred/'
 
     # Load the dataset
     train_loader, test_loader = get_dataloaders(
@@ -196,27 +197,27 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    # setup_and_run_train(load=args.load,
-    #                     batch_size=args.batchsize,
-    #                     epochs=args.epochs,
-    #                     lr=args.lr
-    #                     )
+    setup_and_run_train(load=args.load,
+                        batch_size=args.batchsize,
+                        epochs=args.epochs,
+                        lr=args.lr
+                        )
 
-    runs = args.runs
-    acum_train = 0
-    acum_test = 0
-    for i in range(1,runs+1):
-        print('-'*10 + 'Start run {}'.format(i) + '-'*10)
-        train_loss, test_loss = setup_and_run_train(load = args.load,
-                batch_size = args.batchsize,
-                epochs = args.epochs,
-                lr = args.lr, run=str(i),
-                dir_train='/home/scalderon/unet/raw/hoechst/original/train_'+str(i)+'/output/', 
-                dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/')
-        acum_train += train_loss
-        acum_test += test_loss
+    # runs = args.runs
+    # acum_train = 0
+    # acum_test = 0
+    # for i in range(1,runs+1):
+    #     print('-'*10 + 'Start run {}'.format(i) + '-'*10)
+    #     train_loss, test_loss = setup_and_run_train(load = args.load,
+    #             batch_size = args.batchsize,
+    #             epochs = args.epochs,
+    #             lr = args.lr, run=str(i),
+    #             dir_train='/home/scalderon/unet/raw/hoechst/original/train_'+str(i)+'/output/', 
+    #             dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/')
+    #     acum_train += train_loss
+    #     acum_test += test_loss
 
-    acum_train /= runs
-    acum_test /= runs
+    # acum_train /= runs
+    # acum_test /= runs
 
-    print('\nAfter '+str(runs)+' runs: \n\tAverage Train Loss: '+str(acum_train)+'\n\tAverage Test Loss: '+str(acum_test))
+    # print('\nAfter '+str(runs)+' runs: \n\tAverage Train Loss: '+str(acum_train)+'\n\tAverage Test Loss: '+str(acum_test))

@@ -10,38 +10,39 @@ from unet import UNet
 from loader import get_predloader
 
 
-def predict_imgs(net, device, loader, dir_save, show=False):
+def predict_imgs(net, device, loader, show=False):
     with torch.no_grad():
         for batch_idx, (data, gt) in enumerate(loader):
-
+   
             # Use GPU or not
-            data = data.to(device)
-
+            data, gt = data.to(device, dtype=torch.float), gt.to(device, dtype=torch.float)
+            
+            
             if show:
                 # Shows original image
-                data_img = transforms.ToPILImage()(data.squeeze(0).cpu()).convert('RGBA')
-                fig = plt.figure(figsize=(20, 20))
+                data_img = transforms.ToPILImage()(data.squeeze(0).cpu()).convert('RGB')
+                fig=plt.figure(figsize=(20, 20))
                 fig.add_subplot(1, 4, 1)
                 plt.imshow(data_img)
-
+            
             # Forward
             predictions = net(data)
 
             # Apply sigmoid
             pred_probs = torch.sigmoid(predictions).squeeze(0)
-
+            
             # Shows prediction
             if show:
                 # Shows prediction
-                pred = transforms.ToPILImage()(predictions.squeeze(0).cpu()).convert('RGBA')
+                pred = transforms.ToPILImage()(predictions.squeeze(0).cpu()).convert('RGB')
                 fig.add_subplot(1, 4, 2)
                 plt.imshow(pred)
                 # Shows prediction probability
-                pred_p = transforms.ToPILImage()(pred_probs.cpu()).convert('RGBA')
+                pred_p = transforms.ToPILImage()(pred_probs.cpu()).convert('RGB')
                 fig.add_subplot(1, 4, 3)
                 plt.imshow(pred_p)
                 # Shows gt
-                gt_img = transforms.ToPILImage()(gt.squeeze(0).cpu()).convert('RGBA')
+                gt_img = transforms.ToPILImage()(gt.squeeze(0).cpu()).convert('RGB')
                 fig.add_subplot(1, 4, 4)
                 plt.imshow(gt_img)
                 plt.show()
@@ -61,18 +62,17 @@ def predict(load='checkpoints/CP1.pth'):
     print('Model loaded from {}'.format(load))
 
     # Location of the images to use
-    dir_pred = 'data/to_predict/'
-    dir_save = 'data/predicted/'
+    dir_pred = 'data/original/'
+    dir_gt = 'data/gt/'
 
     # Load the dataset
-    pred_loader = get_predloader(dir_pred)
+    pred_loader = get_predloader(dir_pred, dir_gt)
 
     # Run the prediction
     predict_imgs(net=net,
-                 device=device,
-                 loader=pred_loader,
-                 dir_save=dir_save,
-                 show=True)
+                device=device,
+                loader=pred_loader,
+                show=True)
 
 
 def get_args():
