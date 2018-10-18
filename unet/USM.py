@@ -113,6 +113,8 @@ class USMBase(LoG2d):
         A[A>255.0] = 255.0
 
         A = torch.round(A)
+
+        A = A/255
         
         return A
 
