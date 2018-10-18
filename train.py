@@ -125,7 +125,7 @@ def setup_and_run_train(load = False, batch_size = 10,
     device = torch.device("cuda" if use_cuda else "cpu")
 
     # Create the model
-    net = UNet(n_channels=1, n_classes=1, with_USM, batch_len = 15).to(device)
+    net = UNet(n_channels=1, n_classes=1, with_USM=with_USM, batch_len = 15).to(device)
 
     # Load old weights
     if load:
