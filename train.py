@@ -187,10 +187,12 @@ def get_args():
                       type='float', help='learning rate')
     parser.add_option('-c', '--load', dest='load',
                       default=False, help='load file model')
-    parser.add_option('-r', '--runs', dest='runs',
+    parser.add_option('-r', '--runs', dest='runs', type='int',
                       default=10, help='How many runs') 
     parser.add_option('-u', '--usm', dest='usm',
-                      default=False, help='Apply USM?')                 
+                      default=False, help='Apply USM?')    
+    parser.add_option('-d', '--dataset', dest='dataset',
+                      default='original', help='Which dataset should use.')             
 
     (options, args) = parser.parse_args()
     return options
@@ -213,8 +215,8 @@ if __name__ == '__main__':
                 batch_size = args.batchsize,
                 epochs = args.epochs,
                 lr = args.lr, run=str(i),
-                dir_train='/home/scalderon/unet/raw/hoechst/original/train_'+str(i)+'/output/', 
-                dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/',
+                dir_train='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/train_'+str(i)+'/output/', 
+                dir_test='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/test_'+str(i)+'/output/',
                 with_USM=args.usm)
         acum_train += train_loss
         acum_test += test_loss
