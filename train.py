@@ -148,8 +148,9 @@ def setup_and_run_train(load = False, batch_size = 10,
         Training size: {}
         Testing size: {}
         CUDA: {}
+        with USM: {}
     '''.format(epochs, batch_size, lr, len(train_loader.dataset),
-               len(test_loader.dataset), str(use_cuda)))
+               len(test_loader.dataset), str(use_cuda),str(with_USM)))
 
     # Definition of the optimizer
     optimizer = optim.Adam(net.parameters(),
