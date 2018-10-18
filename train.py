@@ -117,8 +117,8 @@ def test_net(net, device, loader):
     print('Test time: It tooks '+time_me(time_var)+' to finish the Test.')
     return test_loss
 
-def setup_and_run_train(load = False, test_perc = 0.2, batch_size = 10,
-                epochs = 5, lr = 0.1, run=""):
+def setup_and_run_train(load = False, batch_size = 10,
+                epochs = 5, lr = 0.1, run="", dir_train="", dir_test=""):
     
     # Use GPU or not
     use_cuda = torch.cuda.is_available()
@@ -133,8 +133,6 @@ def setup_and_run_train(load = False, test_perc = 0.2, batch_size = 10,
         print('Model loaded from {}'.format(load))
 
     # Location of the images to use
-    dir_train = '~/unet/raw/hoechst/original/train_1/output/'
-    dir_test = '~/unet/raw/hoechst/original/test_1/output/'
     dir_checkpoint = 'checkpoints/'
 
     # Load the dataset
@@ -187,10 +185,10 @@ def get_args():
                       type='int', help='batch size')
     parser.add_option('-l', '--learning-rate', dest='lr', default=0.0001,
                       type='float', help='learning rate')
-    parser.add_option('-t', '--test-percentage', type='float', dest='testperc',
-                      default=0.2, help='Test percentage')
     parser.add_option('-c', '--load', dest='load',
                       default=False, help='load file model')
+    parser.add_option('-r', '--runs', dest='runs',
+                      default=10, help='How many runs')                  
 
     (options, args) = parser.parse_args()
     return options
@@ -198,9 +196,27 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    setup_and_run_train(load=args.load,
-                        test_perc=args.testperc,
-                        batch_size=args.batchsize,
-                        epochs=args.epochs,
-                        lr=args.lr
-                        )
+    # setup_and_run_train(load=args.load,
+    #                     batch_size=args.batchsize,
+    #                     epochs=args.epochs,
+    #                     lr=args.lr
+    #                     )
+
+    runs = args.runs
+    acum_train = 0
+    acum_test = 0
+    for i in range(1,runs+1):
+        print('-'*10 + 'Start run {}'.format(i) + '-'*10)
+        train_loss, test_loss = setup_and_run_train(load = args.load,
+                batch_size = args.batchsize,
+                epochs = args.epochs,
+                lr = args.lr, run=str(i),
+                dir_train='/home/scalderon/unet/raw/hoechst/original/train_'+str(i)+'/output/', 
+                dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/')
+        acum_train += train_loss
+        acum_test += test_loss
+
+    acum_train /= runs
+    acum_test /= runs
+
+    print('\nAfter '+str(runs)+' runs: \n\tAverage Train Loss: '+str(acum_train)+'\n\tAverage Test Loss: '+str(acum_test))
