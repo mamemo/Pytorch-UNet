@@ -118,14 +118,14 @@ def test_net(net, device, loader):
     return test_loss
 
 def setup_and_run_train(load = False, batch_size = 10,
-                epochs = 5, lr = 0.1, run="", dir_train="", dir_test=""):
+                epochs = 5, lr = 0.1, run="", dir_train="", dir_test="", with_USM = False):
     
     # Use GPU or not
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
     # Create the model
-    net = UNet(n_channels=1, n_classes=1).to(device)
+    net = UNet(n_channels=1, n_classes=1, with_USM, batch_len = 15).to(device)
 
     # Load old weights
     if load:
@@ -188,7 +188,9 @@ def get_args():
     parser.add_option('-c', '--load', dest='load',
                       default=False, help='load file model')
     parser.add_option('-r', '--runs', dest='runs',
-                      default=10, help='How many runs')                  
+                      default=10, help='How many runs') 
+    parser.add_option('-u', '--usm', dest='usm',
+                      default=False, help='Apply USM?')                 
 
     (options, args) = parser.parse_args()
     return options
@@ -212,7 +214,8 @@ if __name__ == '__main__':
                 epochs = args.epochs,
                 lr = args.lr, run=str(i),
                 dir_train='/home/scalderon/unet/raw/hoechst/original/train_'+str(i)+'/output/', 
-                dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/')
+                dir_test='/home/scalderon/unet/raw/hoechst/original/test_'+str(i)+'/output/',
+                with_USM=args.usm)
         acum_train += train_loss
         acum_test += test_loss
 
