@@ -117,8 +117,8 @@ def test_net(net, device, loader):
     print('Test time: It tooks '+time_me(time_var)+' to finish the Test.')
     return test_loss
 
-def setup_and_run_train(load = False, batch_size = 10,
-                epochs = 5, lr = 0.1, run="", dir_train="", dir_test="", with_USM = False):
+def setup_and_run_train(load = False, batch_size = 10,epochs = 5, lr = 0.1, run="",
+    dir_train="", dir_test="", with_USM = False, dataset = ""):
     
     # Use GPU or not
     use_cuda = torch.cuda.is_available()
@@ -148,9 +148,10 @@ def setup_and_run_train(load = False, batch_size = 10,
         Training size: {}
         Testing size: {}
         CUDA: {}
-        with USM: {}
+        With USM: {}
+        Dataset: {}
     '''.format(epochs, batch_size, lr, len(train_loader.dataset),
-               len(test_loader.dataset), str(use_cuda),str(with_USM)))
+               len(test_loader.dataset), str(use_cuda),str(with_USM), dataset))
 
     # Definition of the optimizer
     optimizer = optim.Adam(net.parameters(),
@@ -218,7 +219,8 @@ if __name__ == '__main__':
                 lr = args.lr, run=str(i),
                 dir_train='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/train_'+str(i)+'/output/', 
                 dir_test='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/test_'+str(i)+'/output/',
-                with_USM=args.usm)
+                with_USM=args.usm,
+                dataset = args.dataset)
         acum_train += train_loss
         acum_test += test_loss
 
