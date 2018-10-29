@@ -118,7 +118,7 @@ def test_net(net, device, loader):
     return test_loss
 
 def setup_and_run_train(load = False, batch_size = 10,epochs = 5, lr = 0.1, run="",
-    dir_train="", dir_test="", with_USM = False, dataset = ""):
+    dir_train="", dir_test="", with_USM = False, dataset = "", dir_checkpoint = 'checkpoints/'):
     
     # Use GPU or not
     use_cuda = torch.cuda.is_available()
@@ -133,7 +133,7 @@ def setup_and_run_train(load = False, batch_size = 10,epochs = 5, lr = 0.1, run=
         print('Model loaded from {}'.format(load))
 
     # Location of the images to use
-    dir_checkpoint = 'checkpoints/'
+    
 
     # Load the dataset
     train_loader, test_loader = get_dataloaders(
@@ -194,7 +194,9 @@ def get_args():
     parser.add_option('-u', '--usm', dest='usm',
                       default=False, help='Apply USM?')    
     parser.add_option('-d', '--dataset', dest='dataset',
-                      default='original', help='Which dataset should use.')             
+                      default='original', help='Which dataset should use.') 
+    parser.add_option('-s', '--savedir', dest='savedir',
+                      default='checkpoints/', help='Which folder should use for checkpoints.')            
 
     (options, args) = parser.parse_args()
     return options
@@ -220,7 +222,8 @@ if __name__ == '__main__':
                 dir_train='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/train_'+str(i)+'/output/', 
                 dir_test='/home/scalderon/unet/raw/hoechst/'+str(args.dataset)+'/test_'+str(i)+'/output/',
                 with_USM=args.usm,
-                dataset = args.dataset)
+                dataset = args.dataset,
+                dir_checkpoint = args.savedir)
         acum_train += train_loss
         acum_test += test_loss
 
