@@ -158,25 +158,17 @@ def setup_and_run_train(load = False, batch_size = 10,epochs = 5, lr = 0.1, run=
                            lr=lr)
 
     # Run the training and testing
-    try:
-        time_var = time_me()
-        train_loss = train_net(net=net,
-                  epochs=epochs,
-                  device=device,
-                  dir_checkpoint=dir_checkpoint,
-                  loader=train_loader,
-                  optimizer=optimizer,
-                  run = run)
-        test_loss = test_net(net=net, device=device, loader=test_loader)
-        print('\nRun time: It tooks '+time_me(time_var)+' to finish the run.')
-        return train_loss, test_loss
-    except KeyboardInterrupt:
-        torch.save(net.state_dict(), 'INTERRUPTED.pth')
-        print('Saved interrupt')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+    time_var = time_me()
+    train_loss = train_net(net=net,
+                epochs=epochs,
+                device=device,
+                dir_checkpoint=dir_checkpoint,
+                loader=train_loader,
+                optimizer=optimizer,
+                run = run)
+    test_loss = test_net(net=net, device=device, loader=test_loader)
+    print('\nRun time: It tooks '+time_me(time_var)+' to finish the run.')
+    return train_loss, test_loss
 
 
 def get_args():
