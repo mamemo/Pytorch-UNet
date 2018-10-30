@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#PBS -N unet.train
+
+#PBS -q gpu-n1h72
+
+#PBS -l nodes=tule-00.cnca:ppn=1
+
+#PBS -l walltime=71:59:59
+
+#PBS -o /home/scalderon/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/prueba.txt
+
+module load opencv/2.4.13.3
+
+module load cuda/8.0.61
+
+module load cudnn-8/6.0.21
+
+module load intelpython/3.5
+
+module load hdf5/1.10.0-patch1
+
+module load tiff/3.9.7
+
+cd $PBS_O_WORKDIR
+
+python ~/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/data.py -T ~/unet/raw/hoechst/original/train_1/output -t ~/unet/raw/hoechst/original/test_1/output
+python ~/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/unet.py
