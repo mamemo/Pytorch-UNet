@@ -1,10 +1,33 @@
+
+from __future__ import print_function
+
 import os
 import numpy as np
 import re
 from skimage.io import imsave, imread
+from sklearn.cross_validation import train_test_split
 import argparse
 
-def create_train_data(train_data_path, image_rows, image_cols):
+ap = argparse.ArgumentParser()
+ap.add_argument("-T", "--train", required=True, help="Path to the train folder")
+ap.add_argument("-t", "--test", required=True, help="Path to the test folder")
+args = vars(ap.parse_args())
+train_data_path = args["train"]
+test_data_path = args["test"]
+
+print('-'*60)
+print('Model Data Set:')
+print(train_data_path)
+print(test_data_path)
+print('-'*60)
+
+
+image_rows = 256
+image_cols = 256
+image_ext = 'png'
+
+
+def create_train_data():
     images = os.listdir(train_data_path)
     total = int(len(images) / 2)
 
@@ -43,17 +66,8 @@ def load_train_data():
     imgs_mask_train = np.load('imgs_mask_train.npy')
     return imgs_train, imgs_mask_train
 
-def preprocess(imgs):
-    imgs_p = np.ndarray((imgs.shape[0], img_rows, img_cols), dtype=np.uint8)
-    for i in range(imgs.shape[0]):
-        imgs_p[i] = imgs[i]
-        #imgs_p[i] = resize(imgs[i], (img_rows, img_cols), preserve_range=True)
 
-    imgs_p = imgs_p[..., np.newaxis]
-    return imgs_p
-
-
-def create_test_data(test_data_path, image_rows, image_cols):
+def create_test_data():
     images = os.listdir(test_data_path)
     total = int(len(images) / 2)
 
@@ -93,13 +107,6 @@ def load_test_data():
     imgs_id = np.load('imgs_id_test.npy')
     return imgs_test, imgs_mask_test, imgs_id
 
-
-def create_data(train_data_path, test_data_path, image_rows = 256, image_cols = 256, image_ext = 'png'):
-    print('-'*60)
-    print('Model Data Set:')
-    print(train_data_path)
-    print(test_data_path)
-    print('-'*60)
-
-    create_train_data(train_data_path,image_rows, image_cols)
-    create_test_data(test_data_path, image_rows, image_cols)
+if __name__ == '__main__':
+    create_train_data()
+    create_test_data()
