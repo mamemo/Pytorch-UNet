@@ -8,12 +8,12 @@ from skimage.io import imsave, imread
 from sklearn.cross_validation import train_test_split
 import argparse
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-T", "--train", required=True, help="Path to the train folder")
-ap.add_argument("-t", "--test", required=True, help="Path to the test folder")
-args = vars(ap.parse_args())
-train_data_path = args["train"]
-test_data_path = args["test"]
+# ap = argparse.ArgumentParser()
+# ap.add_argument("-T", "--train", required=True, help="Path to the train folder")
+# ap.add_argument("-t", "--test", required=True, help="Path to the test folder")
+# args = vars(ap.parse_args())
+train_data_path = '/home/scalderon/unet/raw/hoechst/original/train_1/output/' #args["train"]
+test_data_path = '/home/scalderon/unet/raw/hoechst/original/test_1/output/' #args["test"]
 
 print('-'*60)
 print('Model Data Set:')
