@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#PBS -N unet.train
+#PBS -N u_train
 
-#PBS -q gpu-n1h72
+#PBS -q phi-n1h72
 
-#PBS -l nodes=tule-00.cnca:ppn=1
+#PBS -l nodes=1:ppn=1
 
 #PBS -l walltime=71:59:59
 
-#PBS -o /home/scalderon/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/prueba.txt
+#PBS -o /home/mamendez/Pytorch-UNet/nuevo_approach/prueba.txt
 
 module load opencv/2.4.13.3
 
@@ -24,5 +24,5 @@ module load tiff/3.9.7
 
 cd $PBS_O_WORKDIR
 
-python ~/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/data.py -T ~/unet/raw/hoechst/original/train_1/output -t ~/unet/raw/hoechst/original/test_1/output
-python ~/unet_pytorch/Mauro/Pytorch-UNet/nuevo_approach/unet.py
+python /home/mamendez/Pytorch-UNet/nuevo_approach/data.py
+python /home/mamendez/Pytorch-UNet/nuevo_approach/unet.py

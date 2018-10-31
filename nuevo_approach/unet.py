@@ -146,7 +146,7 @@ def train_and_test():
     print('Fitting model...')
     print('-'*30)
 
-    optimizer = optim.Adam(net.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     train_net(model, device, train_dataloader, 'checkpoints/',optimizer, epochs=30)
     
     print('-'*30)
